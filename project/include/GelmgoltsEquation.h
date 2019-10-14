@@ -5,8 +5,9 @@
 using namespace std;
 
 // Main
-double** Zeidel(double** _mesh, int _rows, int _cols);  // TODO: make Zeidel
-double** Jacobi(double** _mesh, int _rows, int _cols);  // TODO: make Jacobi
+void Zeidel(double** _mesh, int _rows, int _cols);  // TODO: make Zeidel
+void Jacobi(double** _mesh, int _rows, int _cols);  // TODO: make Jacobi
+double rightPart(double _x, double _y, double _k);
 
 // Additional
 double** createMesh(double _xBorder, double _yBorder, double _step, double* _rows, double* _cols);  // Step must be valid

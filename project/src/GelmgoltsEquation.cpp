@@ -1,7 +1,21 @@
 #include "../include/GelmgoltsEquation.h"
 #include "../include/Matr.h"
+#include <cmath>
+
+#define Pi 3.14
 
 using namespace std;
+
+// Main
+
+double rightPart(double _x, double _y, double _k) {
+	return 2.0 * sin(Pi * _y) + _k * _k * (1 - _x) * _x * sin(Pi * _y) + \
+		Pi * Pi * (1 - _x) * _x * sin(Pi * _y);
+}
+
+void Jacobi(double** _mesh, int _rows, int _cols) {
+
+}
 
 // Additional
 
