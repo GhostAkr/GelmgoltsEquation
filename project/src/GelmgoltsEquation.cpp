@@ -13,7 +13,7 @@ double rightPart(double _x, double _y, double _k) {
 		Pi * Pi * (1 - _x) * _x * sin(Pi * _y);
 }
 
-void Jacobi(double** _mesh, int _rows, int _cols) {
+void Jacobi(double** _mesh, int _rows, int _cols, double _k) {
 
 }
 
