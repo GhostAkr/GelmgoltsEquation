@@ -1,6 +1,7 @@
 #include "../include/GelmgoltsEquation.h"
 #include "../include/Matr.h"
 #include <cmath>
+#include <omp.h>
 
 #define Pi 3.14
 
@@ -36,7 +37,7 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	double** rPart = rightPart(_step, _rows, _cols, _k);
 	double c = 1 / (4 + _k * _k *_step*_step);
 	//double** previousLayer = nullptr;
-	for (int s = 0; s < 300000; ++s) {
+	for (int s = 0; s < 10000; ++s) {
 		//cout << "_mesh[1][1] = " << _mesh[1][1] << endl;
 		//cout << "_mesh[2][1] = " << _mesh[2][1] << endl;
 		double** previousLayer = copyMesh(_mesh, _rows, _cols);
@@ -137,14 +138,16 @@ double** copyMesh(double** _mesh, int _rows, int _cols) {
 }
 
 bool checkResult(double** _result, int _rows, int _cols, double _step) {
-	double epsNull = 1e-5;
+	double epsNull = 1e-2;
 	for (int i = 0; i < _rows; ++i) {
 		for (int j = 0; j < _cols; ++j) {
 			if (fabs(_result[i][j] - exactSolution(i * _step, j * _step)) > epsNull) {
+				cout << endl;
 				cout << "_result[i][j] = " << _result[i][j] << endl;
 				cout << "Exact = " << exactSolution(i * _step, j * _step) << endl;
 				cout << "i = " << i << endl;
 				cout << "j = " << j << endl;
+				cout << endl;
 				return false;
 			}
 		}
