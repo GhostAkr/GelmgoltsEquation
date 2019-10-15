@@ -59,6 +59,44 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	//deleteMatr(previousLayer, _rows);
 }
 
+//void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
+//	double** rPart = rightPart(_step, _rows, _cols, _k);
+//	double c = 1 / (4 + _k * _k *_step*_step);
+//	double temp = 0;
+//	//double** previousLayer = nullptr;
+//	for (int s = 0; s < 100000; ++s) {
+//		//cout << "_mesh[1][1] = " << _mesh[1][1] << endl;
+//		//cout << "_mesh[99][99] = " << _mesh[99][99] << endl;
+//		double** previousLayer = copyMesh(_mesh, _rows, _cols);
+//		//cout << "previousLayer = " << previousLayer[1][1] << endl;
+//		for (int i = 1; i < _rows / 2; ++i) {
+//			for (int j = 1; j < _cols - 1; ++j) {
+//				temp = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
+//					previousLayer[i][j + 1] + _step * _step*rPart[i][j]);
+//				_mesh[i][j] = temp;
+//				_mesh[_rows - 1 - i][_cols - 1 - j] = temp;
+//				//cout << i << " " << _rows - 1 - i << endl;
+//			}
+//			for (int i = _rows / 2; i < _rows / 2 + 1; ++i) {
+//				for (int j = 1; j < _cols - 1; ++j) {
+//					_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
+//						previousLayer[i][j + 1] + _step * _step*rPart[i][j]);
+//				}
+//			}
+//
+//		}
+//		deleteMatr(previousLayer, _rows);
+//	}
+//	if (checkResult(_mesh, _rows, _cols, _step)) {
+//		cout << "Answer is correct" << endl;
+//	}
+//	else {
+//		cout << "Answer is INcorrect" << endl;
+//	}
+//	deleteMatr(rPart, _rows);
+//	//deleteMatr(previousLayer, _rows);
+//}
+
 
 
 // Additional
