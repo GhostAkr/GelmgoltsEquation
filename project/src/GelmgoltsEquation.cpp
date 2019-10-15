@@ -20,9 +20,10 @@ double exactSolution(double _x, double _y) {
 
 double** rightPart(double _step, double _rows, double _cols, double _k) {
 	double** result = createMatr(_rows, _cols);
+	double _step2 = _step * _step;
 	for (int i = 1; i < _rows - 1; ++i) {
 		for (int j = 1; j < _cols - 1; ++j) {
-			result[i][j] = f(i * _step, j * _step, _k);
+			result[i][j] = f(i * _step, j * _step, _k) * _step2;
 		}
 	}
 	double boundaryValue = 0.0;
@@ -138,11 +139,12 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 
 void Zeidel(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	double** rPart = rightPart(_step, _rows, _cols, _k);
+	double _step2 = _step * _step;
 	double c = 1.0 / (4.0 + _k * _k * _step * _step);
-	for (int s = 0; s < 4800; ++s) {
+	for (int s = 0; s < 20000; ++s) {
 		for (int i = 1; i < _rows - 1; ++i) {
 			for (int j = 1; j < _cols - 1; ++j) {
-				_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + _mesh[i][j + 1] + _step * _step * rPart[i][j]);
+				_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + _mesh[i][j + 1] + rPart[i][j]);
 			}
 		}
 	}
@@ -193,7 +195,7 @@ double** copyMesh(double** _mesh, int _rows, int _cols) {
 }
 
 bool checkResult(double** _result, int _rows, int _cols, double _step) {
-	double epsNull = 10e-3;
+	double epsNull = 10e-10;
 	for (int i = 0; i < _rows; ++i) {
 		for (int j = 0; j < _cols; ++j) {
 			if (fabs(_result[i][j] - exactSolution(i * _step, j * _step)) > epsNull) {
