@@ -37,34 +37,61 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	double** rPart = rightPart(_step, _rows, _cols, _k);
 	double c = 1 / (4 + _k * _k *_step*_step);
 	//double** previousLayer = nullptr;
-	double tt = 0.0;
-	double tt1 = 0.0;
-	double tt2 = 0.0;
-	for (int s = 0; s < 9000; ++s) {
+	//double tt = 0.0;
+	//double tt1 = 0.0;
+	//double tt2 = 0.0;
+	double*** layers = new double**[_rows];
+	for (int i = 0; i < _rows; ++i) {
+		layers[i] = new double*[_cols];
+		for (int j = 0; j < _cols; ++j) {
+			layers[i][j] = new double[2];
+			layers[i][j][0] = _mesh[i][j];
+			layers[i][j][1] = 0.0;
+		}
+	}
+	for (int s = 0; s < 4500; ++s) {
 		//cout << "_mesh[1][1] = " << _mesh[1][1] << endl;
 		//cout << "_mesh[2][1] = " << _mesh[2][1] << endl;
-		double t1 = omp_get_wtime();
-		double** previousLayer = copyMesh(_mesh, _rows, _cols);
-		double t2 = omp_get_wtime();
-		tt += t2 - t1;
+		//double t1 = omp_get_wtime();
+		//double** previousLayer = copyMesh(_mesh, _rows, _cols);
+		//double t2 = omp_get_wtime();
+		//tt += t2 - t1;
 		//cout << "previousLayer = " << previousLayer[1][1] << endl;
-		t1 = omp_get_wtime();
+		//t1 = omp_get_wtime();
 		for (int i = 1; i < _rows - 1; ++i) {
 			for (int j = 1; j < _cols - 1; ++j) {
-				_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
-					previousLayer[i][j + 1] + _step * _step*rPart[i][j]);
+				layers[i][j][1] = c * (layers[i - 1][j][0] + layers[i + 1][j][0] + layers[i][j - 1][0] + \
+					layers[i][j + 1][0] + _step * _step * rPart[i][j]);
 			}
 		}
-		t2 = omp_get_wtime();
-		tt1 += t2 - t1;
-		t1 = omp_get_wtime();
-		deleteMatr(previousLayer, _rows);
-		t2 = omp_get_wtime();
-		tt2 += t2 - t1;
+		for (int i = 1; i < _rows - 1; ++i) {
+			for (int j = 1; j < _cols - 1; ++j) {
+				layers[i][j][0] = c * (layers[i - 1][j][1] + layers[i + 1][j][1] + layers[i][j - 1][1] + \
+					layers[i][j + 1][1] + _step * _step * rPart[i][j]);
+			}
+		}
+		//t2 = omp_get_wtime();
+		//tt1 += t2 - t1;
+		//t1 = omp_get_wtime();
+		//deleteMatr(previousLayer, _rows);
+		//t2 = omp_get_wtime();
+		//tt2 += t2 - t1;
 	}
-	cout << "Time of deleting pointers: " << tt2 << endl;
-	cout << "Time of cycle: " << tt1 << endl;
-	cout << "Time of copying matrices: " << tt << endl;
+	for (int i = 0; i < _rows; ++i) {
+		for (int j = 0; j < _cols; ++j) {
+			_mesh[i][j] = layers[i][j][0];
+		}
+	}
+	for (int i = 0; i < _rows; ++i) {
+		for (int j = 0; j < _cols; ++j) {
+			delete[] layers[i][j];
+		}
+		delete[] layers[i];
+	}
+	delete[] layers;
+	//cout << "Time of deleting pointers: " << tt2 << endl;
+	//cout << "Time of cycle: " << tt1 << endl;
+	//cout << "Time of copying matrices: " << tt << endl;
 	if (checkResult(_mesh, _rows, _cols, _step)) {
 		cout << "Answer is correct" << endl;
 	}
