@@ -34,15 +34,17 @@ double** rightPart(double _step, double _rows, double _cols, double _k) {
 
 void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	double** rPart = rightPart(_step, _rows, _cols, _k);
+	double c = 1 / (4 + _k * _k *_step*_step);
 	//double** previousLayer = nullptr;
-	for (int s = 0; s < 42; ++s) {
-		cout << "_mesh[1][1] = " << _mesh[1][1] << endl;
-		cout << "_mesh[2][1] = " << _mesh[2][1] << endl;
+	for (int s = 0; s < 300000; ++s) {
+		//cout << "_mesh[1][1] = " << _mesh[1][1] << endl;
+		//cout << "_mesh[2][1] = " << _mesh[2][1] << endl;
 		double** previousLayer = copyMesh(_mesh, _rows, _cols);
+		//cout << "previousLayer = " << previousLayer[1][1] << endl;
 		for (int i = 1; i < _rows - 1; ++i) {
 			for (int j = 1; j < _cols - 1; ++j) {
-				_mesh[i][j] = 0.25 * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
-					previousLayer[i][j + 1] - _k * _k * _step * _step * previousLayer[i][j]) + rPart[i][j];
+				_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
+					previousLayer[i][j + 1] + _step * _step*rPart[i][j]);
 			}
 		}
 		deleteMatr(previousLayer, _rows);
@@ -90,7 +92,7 @@ double** copyMesh(double** _mesh, int _rows, int _cols) {
 	double** result = createMatr(_rows, _cols);
 	for (int i = 0; i < _rows; ++i) {
 		for (int j = 0; j < _cols; ++j) {
-			_mesh[i][j] = result[i][j];
+			result[i][j] = _mesh[i][j];
 		}
 	}
 	return result;
