@@ -44,21 +44,31 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	//cout << previousLayer << endl;
 	//cout << _mesh << endl;
 	double** buff = nullptr;
-	for (int s = 0; s < 7000; ++s) {
+	for (int s = 0; s < 20000; ++s) {
 		//cout << "_mesh[1][1] = " << _mesh[1][1] << endl;
 		//cout << "_mesh[2][1] = " << _mesh[2][1] << endl;
 		//double t1 = omp_get_wtime();
-		buff = previousLayer;
-		previousLayer = _mesh;
-		_mesh = buff;
+		//buff = previousLayer;
+		//previousLayer = _mesh;
+		//_mesh = buff;
 		//double t2 = omp_get_wtime();
 		//tt += t2 - t1;
 		//cout << "previousLayer = " << previousLayer[1][1] << endl;
 		//t1 = omp_get_wtime();
-		for (int i = 1; i < _rows - 1; ++i) {
-			for (int j = 1; j < _cols - 1; ++j) {
-				_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
-					previousLayer[i][j + 1] + _step * _step*rPart[i][j]);
+		if (s % 2 == 0) {
+			for (int i = 1; i < _rows - 1; ++i) {
+				for (int j = 1; j < _cols - 1; ++j) {
+					_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
+						previousLayer[i][j + 1] + _step * _step*rPart[i][j]);
+				}
+			}
+		}
+		else {
+			for (int i = 1; i < _rows - 1; ++i) {
+				for (int j = 1; j < _cols - 1; ++j) {
+					previousLayer[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
+						_mesh[i][j + 1] + _step * _step*rPart[i][j]);
+				}
 			}
 		}
 		/*for (int i = 1; i < _rows - 1; ++i) {
@@ -183,7 +193,7 @@ double** copyMesh(double** _mesh, int _rows, int _cols) {
 }
 
 bool checkResult(double** _result, int _rows, int _cols, double _step) {
-	double epsNull = 1e-2;
+	double epsNull = 10e-3;
 	for (int i = 0; i < _rows; ++i) {
 		for (int j = 0; j < _cols; ++j) {
 			if (fabs(_result[i][j] - exactSolution(i * _step, j * _step)) > epsNull) {

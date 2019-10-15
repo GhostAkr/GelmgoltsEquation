@@ -11,12 +11,13 @@ int main() {
 	double** mesh = createMesh(1, 1, step, &rows, &cols);
 	cout << "Jacobi" << endl;
 	double t1 = omp_get_wtime();
-	Jacobi(mesh, rows, cols, 1, step);
+	Jacobi(mesh, rows, cols, 0, step);
 	double t2 = omp_get_wtime();
 	cout << "Time spent (Jacobi): " << t2 - t1 << endl;
 	cout << "Zeidel" << endl;
+	double** mesh1 = copyMesh(mesh, rows, cols);
 	t1 = omp_get_wtime();
-	Zeidel(mesh, rows, cols, 1, step);
+	Zeidel(mesh1, rows, cols, 1, step);
 	t2 = omp_get_wtime();
 	cout << "Time spent (Zeidel):" << t2 - t1 << endl;
 	//printMatr(mesh, rows, cols);
