@@ -27,10 +27,10 @@ double** rightPart(double _step, double _rows, double _cols, double _k) {
 		}
 	}
 	double boundaryValue = 0.0;
-	/*leftBoundary(result, _rows, _cols, boundaryValue);
+	leftBoundary(result, _rows, _cols, boundaryValue);
 	rightBoundary(result, _rows, _cols, boundaryValue);
 	topBoundary(result, _rows, _cols, boundaryValue);
-	bottomBoundary(result, _rows, _cols, boundaryValue);*/
+	bottomBoundary(result, _rows, _cols, boundaryValue);
 	return result;
 }
 
@@ -45,7 +45,7 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	//cout << previousLayer << endl;
 	//cout << _mesh << endl;
 	double** buff = nullptr;
-	for (int s = 0; s < 6000; ++s) {
+	for (int s = 0; s < 7000; ++s) {
 		//cout << "_mesh[1][1] = " << _mesh[1][1] << endl;
 		//cout << "_mesh[2][1] = " << _mesh[2][1] << endl;
 		//double t1 = omp_get_wtime();
@@ -168,28 +168,28 @@ void Zeidel(double** _mesh, int _rows, int _cols, double _k, double _step) {
 		buff = previousLayer;
 		previousLayer = _mesh;
 		_mesh = buff;
-#pragma omp parallel for
+//#pragma omp parallel for
 		for (int i = 1; i < _rows - 1; i += 2) {
 			for (int j = 1; j < _cols - 1; j += 2) {
 				_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
 					previousLayer[i][j + 1] + rPart[i][j]);
 			}
 		}
-#pragma omp parallel for
+//#pragma omp parallel for
 		for (int i = 2; i < _rows - 1; i += 2) {
 			for (int j = 2; j < _cols - 1; j += 2) {
 				_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
 					previousLayer[i][j + 1] + rPart[i][j]);
 			}
 		}
-#pragma omp parallel for
+//#pragma omp parallel for
 		for (int i = 1; i < _rows - 1; i += 2) {
 			for (int j = 2; j < _cols - 1; j += 2) {
 				_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
 					_mesh[i][j + 1] + rPart[i][j]);
 			}
 		}
-#pragma omp parallel for
+//#pragma omp parallel for
 		for (int i = 2; i < _rows - 1; i += 2) {
 			for (int j = 1; j < _cols - 1; j += 2) {
 				_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
@@ -227,10 +227,10 @@ void zeroLayer(double** _mesh, int _rows, int _cols) {
 		}
 	}
 	double boundaryValue = 0.0;
-	/*leftBoundary(_mesh, _rows, _cols, boundaryValue);
+	leftBoundary(_mesh, _rows, _cols, boundaryValue);
 	rightBoundary(_mesh, _rows, _cols, boundaryValue);
 	topBoundary(_mesh, _rows, _cols, boundaryValue);
-	bottomBoundary(_mesh, _rows, _cols, boundaryValue);*/
+	bottomBoundary(_mesh, _rows, _cols, boundaryValue);
 }
 
 double** copyMesh(double** _mesh, int _rows, int _cols) {
@@ -263,25 +263,46 @@ bool checkResult(double** _result, int _rows, int _cols, double _step) {
 
 // Boundaries
 
+//void leftBoundary(double** _mesh, int _rows, int _cols, double _boundValue) {
+//	for (int i = 0; i < _rows; ++i) {
+//		_mesh[i][0] = _boundValue;
+//	}
+//}
+//
+//void rightBoundary(double** _mesh, int _rows, int _cols, double _boundValue) {
+//	for (int i = 0; i < _rows; ++i) {
+//		_mesh[i][_cols - 1] = _boundValue;
+//	}
+//}
+//
+//void topBoundary(double** _mesh, int _rows, int _cols, double _boundValue) {
+//	for (int i = 0; i < _cols; ++i) {
+//		_mesh[_rows - 1][i] = _boundValue;
+//	}
+//}
+//
+//void bottomBoundary(double** _mesh, int _rows, double _cols, double _boundValue) {
+//	for (int i = 0; i < _cols; ++i) {
+//		_mesh[0][i] = _boundValue;
+//	}
+//}
+
 void leftBoundary(double** _mesh, int _rows, int _cols, double _boundValue) {
 	for (int i = 0; i < _rows; ++i) {
 		_mesh[i][0] = _boundValue;
 	}
 }
-
 void rightBoundary(double** _mesh, int _rows, int _cols, double _boundValue) {
 	for (int i = 0; i < _rows; ++i) {
 		_mesh[i][_cols - 1] = _boundValue;
 	}
 }
-
 void topBoundary(double** _mesh, int _rows, int _cols, double _boundValue) {
 	for (int i = 0; i < _cols; ++i) {
 		_mesh[_rows - 1][i] = _boundValue;
 	}
 }
-
-void bottomBoundary(double** _mesh, int _rows, double _cols, double _boundValue) {
+void bottomBoundary(double** _mesh, int _rows, int _cols, double _boundValue) {
 	for (int i = 0; i < _cols; ++i) {
 		_mesh[0][i] = _boundValue;
 	}
