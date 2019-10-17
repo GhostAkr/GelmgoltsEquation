@@ -38,7 +38,7 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	double** rPart = rightPart(_step, _rows, _cols, _k);
 	double c = 1 / (4 + _k * _k *_step*_step);
 	double** previousLayer = copyMesh(_mesh, _rows, _cols);
-	for (int s = 0; s < 7000; ++s) {
+	for (int s = 0; s < 300000; ++s) {
 		if (s % 2 == 0) {
 			for (int i = 1; i < _rows - 1; ++i) {
 				for (int j = 1; j < _cols - 1; ++j) {
@@ -55,6 +55,9 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 				}
 			}
 		}
+		/*if (checkResult(_mesh, _rows, _cols, _step)) {
+			cout << "Accuracy was reached on " << s << " iteration" << endl;
+		}*/
 	}
 	if (checkResult(_mesh, _rows, _cols, _step)) {
 		cout << "Answer is correct" << endl;
@@ -165,7 +168,7 @@ void Zeidel(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	double c = 1.0 / (4.0 + _k * _k * _step * _step);
 	double** previousLayer = copyMesh(_mesh, _rows, _cols);
 	double** buff = nullptr;
-	for (int s = 0; s <= 4000; ++s) {
+	for (int s = 0; s <= 100000; ++s) {
 		buff = previousLayer;
 		previousLayer = _mesh;
 		_mesh = buff;
@@ -193,13 +196,16 @@ void Zeidel(double** _mesh, int _rows, int _cols, double _k, double _step) {
 					_mesh[i][j + 1] + rPart[i][j]);
 			}
 		}
+		if (checkResult(_mesh, _rows, _cols, _step)) {
+			cout << "Accuracy was reached on " << s << " iteration" << endl;
+		}
 	}
-	if (checkResult(_mesh, _rows, _cols, _step)) {
+	/*if (checkResult(_mesh, _rows, _cols, _step)) {
 		cout << "Answer is correct" << endl;
 	}
 	else {
 		cout << "Answer is INcorrect" << endl;
-	}
+	}*/
 	// Buff points to _mesh or to previousLayer
 	deleteMatr(buff, _rows);
 	deleteMatr(rPart, _rows);
@@ -293,7 +299,7 @@ double** copyMesh(double** _mesh, int _rows, int _cols) {
 }
 
 bool checkResult(double** _result, int _rows, int _cols, double _step) {
-	double epsNull = 1e-2;
+	double epsNull = 1e-4;
 	for (int i = 0; i < _rows; ++i) {
 		for (int j = 0; j < _cols; ++j) {
 			if (fabs(_result[i][j] - exactSolution(i * _step, j * _step)) > epsNull) {

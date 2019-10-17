@@ -34,14 +34,14 @@ int main() {
 	t1 = omp_get_wtime();
 	Zeidel(mesh3, rows, cols, 1, step);
 	t2 = omp_get_wtime();
-	cout << "Time spent (Zeidel):" << t2 - t1 << endl << endl;
+	cout << "Time spent (Zeidel): " << t2 - t1 << endl << endl;
 
 	// Parallel Zeidel
 	/*cout << "Parallel Zeidel" << endl;
 	t1 = omp_get_wtime();
 	ZeidelParal(mesh4, rows, cols, 1, step);
 	t2 = omp_get_wtime();
-	cout << "Time spent (Parallel Zeidel):" << t2 - t1 << endl << endl;*/
+	cout << "Time spent (Parallel Zeidel): " << t2 - t1 << endl << endl;*/
 	
 	// Cleanup
 	deleteMatr(mesh1, rows);
