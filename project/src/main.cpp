@@ -29,5 +29,6 @@ int main() {
 	
 	// Cleanup
 	deleteMatr(mesh, rows);
+	deleteMatr(mesh1, rows);
 	system("pause");
 }

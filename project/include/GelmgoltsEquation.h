@@ -5,8 +5,8 @@
 using namespace std;
 
 // Main
-void Zeidel(double** _mesh, int _rows, int _cols, double _k, double _step);  // TODO: make Zeidel
-void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step);  // TODO: make Jacobi
+void Zeidel(double** _mesh, int _rows, int _cols, double _k, double _step);
+void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step);
 double f(double _x, double _y, double _k);
 double exactSolution(double _x, double _y);
 double** rightPart(double _step, double _rows, double _cols, double _k);

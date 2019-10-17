@@ -37,25 +37,9 @@ double** rightPart(double _step, double _rows, double _cols, double _k) {
 void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	double** rPart = rightPart(_step, _rows, _cols, _k);
 	double c = 1 / (4 + _k * _k *_step*_step);
-	//double** previousLayer = nullptr;
-	//double tt = 0.0;
-	//double tt1 = 0.0;
-	//double tt2 = 0.0;
 	double** previousLayer = copyMesh(_mesh, _rows, _cols);
-	//cout << previousLayer << endl;
-	//cout << _mesh << endl;
 	double** buff = nullptr;
 	for (int s = 0; s < 7000; ++s) {
-		//cout << "_mesh[1][1] = " << _mesh[1][1] << endl;
-		//cout << "_mesh[2][1] = " << _mesh[2][1] << endl;
-		//double t1 = omp_get_wtime();
-		//buff = previousLayer;
-		//previousLayer = _mesh;
-		//_mesh = buff;
-		//double t2 = omp_get_wtime();
-		//tt += t2 - t1;
-		//cout << "previousLayer = " << previousLayer[1][1] << endl;
-		//t1 = omp_get_wtime();
 		if (s % 2 == 0) {
 			for (int i = 1; i < _rows - 1; ++i) {
 				for (int j = 1; j < _cols - 1; ++j) {
@@ -72,22 +56,7 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 				}
 			}
 		}
-		/*for (int i = 1; i < _rows - 1; ++i) {
-			for (int j = 1; j < _cols - 1; ++j) {
-				previousLayer[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
-					_mesh[i][j + 1] + _step * _step*rPart[i][j]);
-			}
-		}*/
-		//t2 = omp_get_wtime();
-		//tt1 += t2 - t1;
-		//t1 = omp_get_wtime();
-		//deleteMatr(previousLayer, _rows);
-		//t2 = omp_get_wtime();
-		//tt2 += t2 - t1;
 	}
-	//cout << "Time of deleting pointers: " << tt2 << endl;
-	//cout << "Time of cycle: " << tt1 << endl;
-	//cout << "Time of copying matrices: " << tt << endl;
 	if (checkResult(_mesh, _rows, _cols, _step)) {
 		cout << "Answer is correct" << endl;
 	}
@@ -96,7 +65,7 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	}
 	deleteMatr(previousLayer, _rows);
 	deleteMatr(rPart, _rows);
-	//deleteMatr(previousLayer, _rows);
+	deleteMatr(buff, _rows);
 }
 
 //void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
@@ -248,12 +217,7 @@ bool checkResult(double** _result, int _rows, int _cols, double _step) {
 	for (int i = 0; i < _rows; ++i) {
 		for (int j = 0; j < _cols; ++j) {
 			if (fabs(_result[i][j] - exactSolution(i * _step, j * _step)) > epsNull) {
-				cout << endl;
-				cout << "_result[i][j] = " << _result[i][j] << endl;
-				cout << "Exact = " << exactSolution(i * _step, j * _step) << endl;
-				cout << "i = " << i << endl;
-				cout << "j = " << j << endl;
-				cout << endl;
+				//cout << "Result[" << i << "][" << j << "] = " << _result[i][j] << "; Exact = " << exactSolution(i * _step, j * _step) << endl;
 				return false;
 			}
 		}
@@ -262,30 +226,6 @@ bool checkResult(double** _result, int _rows, int _cols, double _step) {
 }
 
 // Boundaries
-
-//void leftBoundary(double** _mesh, int _rows, int _cols, double _boundValue) {
-//	for (int i = 0; i < _rows; ++i) {
-//		_mesh[i][0] = _boundValue;
-//	}
-//}
-//
-//void rightBoundary(double** _mesh, int _rows, int _cols, double _boundValue) {
-//	for (int i = 0; i < _rows; ++i) {
-//		_mesh[i][_cols - 1] = _boundValue;
-//	}
-//}
-//
-//void topBoundary(double** _mesh, int _rows, int _cols, double _boundValue) {
-//	for (int i = 0; i < _cols; ++i) {
-//		_mesh[_rows - 1][i] = _boundValue;
-//	}
-//}
-//
-//void bottomBoundary(double** _mesh, int _rows, double _cols, double _boundValue) {
-//	for (int i = 0; i < _cols; ++i) {
-//		_mesh[0][i] = _boundValue;
-//	}
-//}
 
 void leftBoundary(double** _mesh, int _rows, int _cols, double _boundValue) {
 	for (int i = 0; i < _rows; ++i) {
