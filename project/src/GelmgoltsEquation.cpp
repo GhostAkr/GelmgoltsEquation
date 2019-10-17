@@ -55,16 +55,16 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 				}
 			}
 		}
-		/*if (checkResult(_mesh, _rows, _cols, _step)) {
+		if (checkResult(_mesh, _rows, _cols, _step)) {
 			cout << "Accuracy was reached on " << s << " iteration" << endl;
-		}*/
+		}
 	}
-	if (checkResult(_mesh, _rows, _cols, _step)) {
+	/*if (checkResult(_mesh, _rows, _cols, _step)) {
 		cout << "Answer is correct" << endl;
 	}
 	else {
 		cout << "Answer is INcorrect" << endl;
-	}
+	}*/
 	deleteMatr(previousLayer, _rows);
 	deleteMatr(rPart, _rows);
 }
