@@ -38,7 +38,6 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	double** rPart = rightPart(_step, _rows, _cols, _k);
 	double c = 1 / (4 + _k * _k *_step*_step);
 	double** previousLayer = copyMesh(_mesh, _rows, _cols);
-	double** buff = nullptr;
 	for (int s = 0; s < 7000; ++s) {
 		if (s % 2 == 0) {
 			for (int i = 1; i < _rows - 1; ++i) {
@@ -65,7 +64,41 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	}
 	deleteMatr(previousLayer, _rows);
 	deleteMatr(rPart, _rows);
-	deleteMatr(buff, _rows);
+}
+
+void JacobiParal(double** _mesh, int _rows, int _cols, double _k, double _step) {
+	double** rPart = rightPart(_step, _rows, _cols, _k);
+	double c = 1 / (4 + _k * _k *_step*_step);
+	double** previousLayer = copyMesh(_mesh, _rows, _cols);
+	omp_set_num_threads(4);
+	for (int s = 0; s < 7000; ++s) {
+		if (s % 2 == 0) {
+#pragma omp parallel for
+			for (int i = 1; i < _rows - 1; ++i) {
+				for (int j = 1; j < _cols - 1; ++j) {
+					_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
+						previousLayer[i][j + 1] + rPart[i][j]);
+				}
+			}
+		}
+		else {
+#pragma omp parallel for
+			for (int i = 1; i < _rows - 1; ++i) {
+				for (int j = 1; j < _cols - 1; ++j) {
+					previousLayer[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
+						_mesh[i][j + 1] + rPart[i][j]);
+				}
+			}
+		}
+	}
+	if (checkResult(_mesh, _rows, _cols, _step)) {
+		cout << "Answer is correct" << endl;
+	}
+	else {
+		cout << "Answer is INcorrect" << endl;
+	}
+	deleteMatr(previousLayer, _rows);
+	deleteMatr(rPart, _rows);
 }
 
 //void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
@@ -108,9 +141,10 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 
 //void Zeidel(double** _mesh, int _rows, int _cols, double _k, double _step) {
 //	double** rPart = rightPart(_step, _rows, _cols, _k);
-//	double _step2 = _step * _step;
 //	double c = 1.0 / (4.0 + _k * _k * _step * _step);
+//	omp_set_num_threads(4);
 //	for (int s = 0; s < 4000; ++s) {
+//#pragma omp parallel for
 //		for (int i = 1; i < _rows - 1; ++i) {
 //			for (int j = 1; j < _cols - 1; ++j) {
 //				_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + _mesh[i][j + 1] + rPart[i][j]);
@@ -128,37 +162,31 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 
 void Zeidel(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	double** rPart = rightPart(_step, _rows, _cols, _k);
-	double _step2 = _step * _step;
 	double c = 1.0 / (4.0 + _k * _k * _step * _step);
 	double** previousLayer = copyMesh(_mesh, _rows, _cols);
 	double** buff = nullptr;
-	omp_set_num_threads(4);
 	for (int s = 0; s <= 4000; ++s) {
 		buff = previousLayer;
 		previousLayer = _mesh;
 		_mesh = buff;
-//#pragma omp parallel for
 		for (int i = 1; i < _rows - 1; i += 2) {
 			for (int j = 1; j < _cols - 1; j += 2) {
 				_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
 					previousLayer[i][j + 1] + rPart[i][j]);
 			}
 		}
-//#pragma omp parallel for
 		for (int i = 2; i < _rows - 1; i += 2) {
 			for (int j = 2; j < _cols - 1; j += 2) {
 				_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
 					previousLayer[i][j + 1] + rPart[i][j]);
 			}
 		}
-//#pragma omp parallel for
 		for (int i = 1; i < _rows - 1; i += 2) {
 			for (int j = 2; j < _cols - 1; j += 2) {
 				_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
 					_mesh[i][j + 1] + rPart[i][j]);
 			}
 		}
-//#pragma omp parallel for
 		for (int i = 2; i < _rows - 1; i += 2) {
 			for (int j = 1; j < _cols - 1; j += 2) {
 				_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
@@ -172,6 +200,58 @@ void Zeidel(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	else {
 		cout << "Answer is INcorrect" << endl;
 	}
+	// Buff points to _mesh or to previousLayer
+	deleteMatr(buff, _rows);
+	deleteMatr(rPart, _rows);
+}
+
+void ZeidelParal(double** _mesh, int _rows, int _cols, double _k, double _step) {
+	double** rPart = rightPart(_step, _rows, _cols, _k);
+	double c = 1.0 / (4.0 + _k * _k * _step * _step);
+	double** previousLayer = copyMesh(_mesh, _rows, _cols);
+	double** buff = nullptr;
+	omp_set_num_threads(4);
+	for (int s = 0; s <= 4000; ++s) {
+		buff = previousLayer;
+		previousLayer = _mesh;
+		_mesh = buff;
+#pragma omp parallel for
+		for (int i = 1; i < _rows - 1; i += 2) {
+			for (int j = 1; j < _cols - 1; j += 2) {
+				_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
+					previousLayer[i][j + 1] + rPart[i][j]);
+			}
+		}
+#pragma omp parallel for
+		for (int i = 2; i < _rows - 1; i += 2) {
+			for (int j = 2; j < _cols - 1; j += 2) {
+				_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
+					previousLayer[i][j + 1] + rPart[i][j]);
+			}
+		}
+#pragma omp parallel for
+		for (int i = 1; i < _rows - 1; i += 2) {
+			for (int j = 2; j < _cols - 1; j += 2) {
+				_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
+					_mesh[i][j + 1] + rPart[i][j]);
+			}
+		}
+#pragma omp parallel for
+		for (int i = 2; i < _rows - 1; i += 2) {
+			for (int j = 1; j < _cols - 1; j += 2) {
+				_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
+					_mesh[i][j + 1] + rPart[i][j]);
+			}
+		}
+	}
+	if (checkResult(_mesh, _rows, _cols, _step)) {
+		cout << "Answer is correct" << endl;
+	}
+	else {
+		cout << "Answer is INcorrect" << endl;
+	}
+	// Buff points to _mesh or to previousLayer
+	deleteMatr(buff, _rows);
 	deleteMatr(rPart, _rows);
 }
 
