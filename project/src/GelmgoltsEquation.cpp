@@ -4,6 +4,8 @@
 #include <omp.h>
 
 #define Pi 3.14
+#define ITERJAC 11410
+#define ITERZEID 5424
 
 using namespace std;
 
@@ -38,7 +40,7 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	double** rPart = rightPart(_step, _rows, _cols, _k);
 	double c = 1 / (4 + _k * _k *_step*_step);
 	double** previousLayer = copyMesh(_mesh, _rows, _cols);
-	for (int s = 0; s < 7000; ++s) {
+	for (int s = 0; s < ITERJAC; ++s) {
 		if (s % 2 == 0) {
 			for (int i = 1; i < _rows - 1; ++i) {
 				for (int j = 1; j < _cols - 1; ++j) {
@@ -55,6 +57,10 @@ void Jacobi(double** _mesh, int _rows, int _cols, double _k, double _step) {
 				}
 			}
 		}
+		/*if (checkResult(_mesh, _rows, _cols, _step)) {
+			cout << "Accuracy was reached on " << s << " iteration" << endl;
+			break;
+		}*/
 	}
 	if (checkResult(_mesh, _rows, _cols, _step)) {
 		cout << "Answer is correct" << endl;
@@ -71,7 +77,7 @@ void JacobiParal(double** _mesh, int _rows, int _cols, double _k, double _step) 
 	double c = 1 / (4 + _k * _k *_step*_step);
 	double** previousLayer = copyMesh(_mesh, _rows, _cols);
 	omp_set_num_threads(4);
-	for (int s = 0; s < 7000; ++s) {
+	for (int s = 0; s < ITERJAC; ++s) {
 		if (s % 2 == 0) {
 #pragma omp parallel for
 			for (int i = 1; i < _rows - 1; ++i) {
@@ -165,34 +171,38 @@ void Zeidel(double** _mesh, int _rows, int _cols, double _k, double _step) {
 	double c = 1.0 / (4.0 + _k * _k * _step * _step);
 	double** previousLayer = copyMesh(_mesh, _rows, _cols);
 	double** buff = nullptr;
-	for (int s = 0; s <= 4000; ++s) {
+	for (int s = 0; s <= ITERZEID; ++s) {
 		buff = previousLayer;
 		previousLayer = _mesh;
 		_mesh = buff;
-		for (int i = 1; i < _rows - 1; i += 2) {
-			for (int j = 1; j < _cols - 1; j += 2) {
+		for (int i = 1; i < _rows - 1; i += 1) {
+			for (int j = 2 - (i % 2); j < _cols - 1; j += 2) {
 				_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
 					previousLayer[i][j + 1] + rPart[i][j]);
 			}
 		}
-		for (int i = 2; i < _rows - 1; i += 2) {
+		/*for (int i = 2; i < _rows - 1; i += 2) {
 			for (int j = 2; j < _cols - 1; j += 2) {
 				_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
 					previousLayer[i][j + 1] + rPart[i][j]);
 			}
-		}
-		for (int i = 1; i < _rows - 1; i += 2) {
-			for (int j = 2; j < _cols - 1; j += 2) {
+		}*/
+		for (int i = 1; i < _rows - 1; i += 1) {
+			for (int j = (i % 2) + 1; j < _cols - 1; j += 2) {
 				_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
 					_mesh[i][j + 1] + rPart[i][j]);
 			}
 		}
-		for (int i = 2; i < _rows - 1; i += 2) {
+		/*for (int i = 2; i < _rows - 1; i += 2) {
 			for (int j = 1; j < _cols - 1; j += 2) {
 				_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
 					_mesh[i][j + 1] + rPart[i][j]);
 			}
-		}
+		}*/
+		/*if (checkResult(_mesh, _rows, _cols, _step)) {
+			cout << "Accuracy was reached on " << s << " iteration" << endl;
+			break;
+		}*/
 	}
 	if (checkResult(_mesh, _rows, _cols, _step)) {
 		cout << "Answer is correct" << endl;
@@ -211,39 +221,46 @@ void ZeidelParal(double** _mesh, int _rows, int _cols, double _k, double _step) 
 	double** previousLayer = copyMesh(_mesh, _rows, _cols);
 	double** buff = nullptr;
 	omp_set_num_threads(4);
-	for (int s = 0; s <= 4000; ++s) {
-		buff = previousLayer;
-		previousLayer = _mesh;
-		_mesh = buff;
+//#pragma omp parallel
+	//{
+		for (int s = 0; s <= ITERZEID; ++s) {
+			buff = previousLayer;
+			previousLayer = _mesh;
+			_mesh = buff;
 #pragma omp parallel for
-		for (int i = 1; i < _rows - 1; i += 2) {
-			for (int j = 1; j < _cols - 1; j += 2) {
-				_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
-					previousLayer[i][j + 1] + rPart[i][j]);
+			for (int i = 1; i < _rows - 1; i += 1) {
+				for (int j = 2 - (i % 2); j < _cols - 1; j += 2) {
+					_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
+						previousLayer[i][j + 1] + rPart[i][j]);
+				}
 			}
-		}
+//#pragma omp parallel for
+//			for (int i = 2; i < _rows - 1; i += 2) {
+//				for (int j = 2; j < _cols - 1; j += 2) {
+//					_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
+//						previousLayer[i][j + 1] + rPart[i][j]);
+//				}
+//			}
 #pragma omp parallel for
-		for (int i = 2; i < _rows - 1; i += 2) {
-			for (int j = 2; j < _cols - 1; j += 2) {
-				_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
-					previousLayer[i][j + 1] + rPart[i][j]);
+			for (int i = 1; i < _rows - 1; i += 1) {
+				for (int j = (i % 2) + 1; j < _cols - 1; j += 2) {
+					_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
+						_mesh[i][j + 1] + rPart[i][j]);
+				}
 			}
+//#pragma omp parallel for
+//			for (int i = 2; i < _rows - 1; i += 2) {
+//				for (int j = 1; j < _cols - 1; j += 2) {
+//					_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
+//						_mesh[i][j + 1] + rPart[i][j]);
+//				}
+//			}
+			/*if (checkResult(_mesh, _rows, _cols, _step)) {
+				cout << "Accuracy was reached on " << s << " iteration" << endl;
+				break;
+				}*/
 		}
-#pragma omp parallel for
-		for (int i = 1; i < _rows - 1; i += 2) {
-			for (int j = 2; j < _cols - 1; j += 2) {
-				_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
-					_mesh[i][j + 1] + rPart[i][j]);
-			}
-		}
-#pragma omp parallel for
-		for (int i = 2; i < _rows - 1; i += 2) {
-			for (int j = 1; j < _cols - 1; j += 2) {
-				_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
-					_mesh[i][j + 1] + rPart[i][j]);
-			}
-		}
-	}
+	//}
 	if (checkResult(_mesh, _rows, _cols, _step)) {
 		cout << "Answer is correct" << endl;
 	}
@@ -293,7 +310,7 @@ double** copyMesh(double** _mesh, int _rows, int _cols) {
 }
 
 bool checkResult(double** _result, int _rows, int _cols, double _step) {
-	double epsNull = 1e-2;
+	double epsNull = 1e-3;
 	for (int i = 0; i < _rows; ++i) {
 		for (int j = 0; j < _cols; ++j) {
 			if (fabs(_result[i][j] - exactSolution(i * _step, j * _step)) > epsNull) {

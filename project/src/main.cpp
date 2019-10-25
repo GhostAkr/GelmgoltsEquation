@@ -23,25 +23,25 @@ int main() {
 	cout << "Time spent (Jacobi): " << t2 - t1 << endl << endl;
 
 	// Parallel Jacobi
-	/*cout << "Parallel Jacobi" << endl;
+	cout << "Parallel Jacobi" << endl;
 	t1 = omp_get_wtime();
 	JacobiParal(mesh2, rows, cols, 0, step);
 	t2 = omp_get_wtime();
-	cout << "Time spent (Parallel Jacobi): " << t2 - t1 << endl << endl;*/
+	cout << "Time spent (Parallel Jacobi): " << t2 - t1 << endl << endl;
 
 	// Zeidel
 	cout << "Zeidel" << endl;
 	t1 = omp_get_wtime();
 	Zeidel(mesh3, rows, cols, 1, step);
 	t2 = omp_get_wtime();
-	cout << "Time spent (Zeidel):" << t2 - t1 << endl << endl;
+	cout << "Time spent (Zeidel): " << t2 - t1 << endl << endl;
 
 	// Parallel Zeidel
-	/*cout << "Parallel Zeidel" << endl;
+	cout << "Parallel Zeidel" << endl;
 	t1 = omp_get_wtime();
 	ZeidelParal(mesh4, rows, cols, 1, step);
 	t2 = omp_get_wtime();
-	cout << "Time spent (Parallel Zeidel):" << t2 - t1 << endl << endl;*/
+	cout << "Time spent (Parallel Zeidel): " << t2 - t1 << endl << endl;
 	
 	// Cleanup
 	deleteMatr(mesh1, rows);
