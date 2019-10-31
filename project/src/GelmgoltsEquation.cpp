@@ -175,12 +175,14 @@ void Zeidel(double** _mesh, int _rows, int _cols, double _k, double _step) {
 		buff = previousLayer;
 		previousLayer = _mesh;
 		_mesh = buff;
+//#pragma omp parallel for
 		for (int i = 1; i < _rows - 1; i += 1) {
 			for (int j = 2 - (i % 2); j < _cols - 1; j += 2) {
 				_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
 					previousLayer[i][j + 1] + rPart[i][j]);
 			}
 		}
+//#pragma omp parallel for
 		for (int i = 1; i < _rows - 1; i += 1) {
 			for (int j = (i % 2) + 1; j < _cols - 1; j += 2) {
 				_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
@@ -209,26 +211,49 @@ void ZeidelParal(double** _mesh, int _rows, int _cols, double _k, double _step) 
 	double** previousLayer = copyMesh(_mesh, _rows, _cols);
 	double** buff = nullptr;
 	omp_set_num_threads(4);
-	for (int s = 0; s <= ITERZEID; ++s) {		
-			buff = previousLayer;
-			previousLayer = _mesh;
-			_mesh = buff;
-			for (int i = 1; i < _rows - 1; i += 1) {
-				for (int j = 2 - (i % 2); j < _cols - 1; j += 2) {
-					_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
-						previousLayer[i][j + 1] + rPart[i][j]);
+	double t1 = 0.0, t2 = 0.0;
+#pragma omp parallel
+	{
+		for (int s = 0; s <= ITERZEID; s += 2) {
+//#pragma omp single
+//				{
+//					buff = previousLayer;
+//					previousLayer = _mesh;
+//					_mesh = buff;
+//				}
+#pragma omp for
+				for (int i = 1; i < _rows - 1; i += 1) {
+					for (int j = 2 - (i % 2); j < _cols - 1; j += 2) {
+						_mesh[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
+							previousLayer[i][j + 1] + rPart[i][j]);
+					}
 				}
-			}
-			for (int i = 1; i < _rows - 1; i += 1) {
-				for (int j = (i % 2) + 1; j < _cols - 1; j += 2) {
-					_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
-						_mesh[i][j + 1] + rPart[i][j]);
+#pragma omp for
+				for (int i = 1; i < _rows - 1; i += 1) {
+					for (int j = (i % 2) + 1; j < _cols - 1; j += 2) {
+						_mesh[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
+							_mesh[i][j + 1] + rPart[i][j]);
+					}
 				}
-			}
+#pragma omp for
+				for (int i = 1; i < _rows - 1; i += 1) {
+					for (int j = 2 - (i % 2); j < _cols - 1; j += 2) {
+						previousLayer[i][j] = c * (_mesh[i - 1][j] + _mesh[i + 1][j] + _mesh[i][j - 1] + \
+							_mesh[i][j + 1] + rPart[i][j]);
+					}
+				}
+#pragma omp for
+				for (int i = 1; i < _rows - 1; i += 1) {
+					for (int j = (i % 2) + 1; j < _cols - 1; j += 2) {
+						previousLayer[i][j] = c * (previousLayer[i - 1][j] + previousLayer[i + 1][j] + previousLayer[i][j - 1] + \
+							previousLayer[i][j + 1] + rPart[i][j]);
+					}
+				}
 			/*if (checkResult(_mesh, _rows, _cols, _step)) {
 				cout << "Accuracy was reached on " << s << " iteration" << endl;
 				break;
 				}*/
+		}
 	}
 	if (checkResult(_mesh, _rows, _cols, _step)) {
 		cout << "Answer is correct" << endl;
@@ -237,8 +262,8 @@ void ZeidelParal(double** _mesh, int _rows, int _cols, double _k, double _step) 
 		cout << "Answer is INcorrect" << endl;
 	}
 	// Buff points to _mesh or to previousLayer
-	deleteMatr(buff, _rows);
-	deleteMatr(rPart, _rows);
+	//deleteMatr(buff, _rows);
+	//deleteMatr(rPart, _rows);
 }
 
 // Additional
