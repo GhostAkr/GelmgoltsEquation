@@ -6,8 +6,8 @@ using namespace std;
 
 int main() {
 	//// Init block
-	//double rows = 0.0;
-	//double cols = 0.0;
+	double rows = 0.0;
+	double cols = 0.0;
 	////double step = STEP;
 	//double** mesh1 = createMesh(1, 1, step, &rows, &cols);
 	//double** mesh2 = copyMesh(mesh1, rows, cols);
@@ -105,10 +105,10 @@ int main() {
 	//t2 = omp_get_wtime();
 	//cout << "Time spent (Parallel Zeidel): " << t2 - t1 << endl << endl;
 
-	// Cleanup
-	deleteMatr(mesh1, rows);
-	deleteMatr(mesh2, rows);
-	deleteMatr(mesh3, rows);
-	deleteMatr(mesh4, rows);
+	//// Cleanup
+	//deleteMatr(mesh1, rows);
+	//deleteMatr(mesh2, rows);
+	//deleteMatr(mesh3, rows);
+	//deleteMatr(mesh4, rows);
 	system("pause");
 }
